@@ -9,7 +9,7 @@ pane::pane(string title):fileName(title) {
     }
     else {
         fstream openedFile;
-        openedFile.open(title.c_str(), ios::app);
+        openedFile.open(title.c_str(), ios::in | ios::app);
         if(openedFile.is_open()) {
             while(!openedFile.eof()) {
                 getline(openedFile, loadedLine);
@@ -92,7 +92,10 @@ void pane::take_control() {
                 if(workingLine != doc.end()) {
                     //Moves cursor down, changes working line
                     row += 1;
-                    column = PRELINE_SIZE + strlen(PRELINE_DELIMETER);
+                    if(column > workingLine->size()-1)
+                        column = workingLine->size() - 1;
+                    else 
+                        column = workingLine->cursorPos() + PRELINE_SIZE + strlen(PRELINE_DELIMETER);
                     //Check if we need to scroll screen
                     if(row >= maxrow)
                         starter += 1;
@@ -106,8 +109,12 @@ void pane::take_control() {
                 if(workingLine != doc.begin()) {
                     //Moves cursor and working line
                     row -= 1;
-                    column = PRELINE_SIZE + strlen(PRELINE_DELIMETER);
                     workingLine--;
+                    if(column > workingLine->size()-1)
+                        column = workingLine->size() - 1;
+                    else 
+                        column = workingLine->cursorPos() + PRELINE_SIZE + strlen(PRELINE_DELIMETER);
+                    
                     //Check if we need to scroll screen
                     if(row < 0) {
                         starter -= 1;
@@ -123,6 +130,12 @@ void pane::take_control() {
                 //Check if we need to scroll line
                 else if(workingLine->can_go_left())
                     workingLine->scroll_left();
+                //Check if we can travel up a line
+                else if(workingLine != doc.begin()) {
+                    row--;
+                    workingLine--;
+                    column = workingLine->size()-1;
+                }
 		break;
 	    case KEY_RIGHT:
                 //Check if we are at end of line. Do not scroll if at end of line
@@ -133,6 +146,11 @@ void pane::take_control() {
                         workingLine->scroll_right();
                         column -= 1;
                     }
+                }
+                else if(workingLine != --doc.end()) {
+                    workingLine++;
+                    row++;
+                    column = PRELINE_SIZE + strlen(PRELINE_DELIMETER);
                 }
                 break;
             case KEY_RESIZE:
@@ -145,15 +163,19 @@ void pane::take_control() {
                 if(!workingLine->eol()) {
                     //Create a placeholder "previous"
                     previous = workingLine;
+                    //Get tab level of workingLine
+                    tabLvl = workingLine->tabLevel();
                     //Increment workingLine for insert function
                     workingLine++;
                     //Insert a new line with the second half of the old workingLine
-                    doc.insert(workingLine, previous->split());
+                    doc.insert(workingLine, line(previous->split()));
                     previous->insert(char(c));
                     workingLine--;
                 }
                 else {
                     workingLine->insert(char(c));
+                    //Get tab level of workingLine
+                    tabLvl = workingLine->tabLevel();
                     //Must increment workingLine to insert before it
                     workingLine++;
                     doc.insert(workingLine, line(tabLvl));

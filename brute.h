@@ -73,8 +73,14 @@ class line {
         void scroll_left();
         //Returns string held by line
         string getLine() const;
+        //Returns cursor position
+        int cursorPos();
         //Adds a second line's contents to the line
         void combine(const line &newLine);
+        //Returns length of line w/ preline
+        int size() const;
+        //Returns tab level of line
+        int tabLevel();
         //Creates empty line with tab length. Tab length defaults to zero
         line(int);
         //Creates line with contents of string passed.

@@ -1,10 +1,10 @@
 #include "brute.h"
 using namespace std;
 
-line::line(int t = 0): tab(t), cur(0), start(0) {
+line::line(int t): tab(0), cur(0), start(0) {
     //Indents as much as needed
-    for(int i=0; i<t; i++) {
-        characters.push_back(' ');
+    for(int i=0; i<tab; i++) {
+        insert(' ');
     }
 }
 
@@ -66,6 +66,7 @@ bool line::eol() {
 
 std::string::iterator line::getIterator() {
     //Gets position of the cursor
+    //Previous way of finding iterator. Will keep it just in case
     /*int row, column;
     getyx(stdscr, row, column);
     column = column - PRELINE_SIZE - strlen(PRELINE_DELIMETER);*/
@@ -136,6 +137,25 @@ void line::combine(const line &newLine) {
         characters[last] = ' ';
     }
     characters = characters + newLine.getLine();
+}
+
+int line::cursorPos() {
+    return cur.position();
+}
+
+int line::tabLevel() {
+    tab = 0;
+    for(int i=0; i<characters.size(); i++) {
+        if(characters[i] == '\t' || characters[i] == ' ')
+            tab++;
+        else
+            break;
+    }
+    return tab;
+}
+
+int line::size() const{
+    return characters.size() + PRELINE_SIZE + strlen(PRELINE_DELIMETER);
 }
 
 inline bool operator==(const line& lhs, const line& rhs) {

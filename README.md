@@ -1,18 +1,34 @@
-Brute Force Text Editor Documentation
+Brute Force Text Editor
 
-Simple text editor made to run from the terminal
+Description
+-----------
+
+Simple text editor made to run from the terminal. The 
+interface is modelled after nano and is designed to be 
+user friendly and logical to use. 
+
+
+Documentation
+-------------
+
+The brute text editor requires the ncurses library.
+To compile, use "make" while in working directory.
+
+Once compiled use the command ./brute [FILENAME] to edit a file.
+Commands:
+	CNTL-Q -> Quit
+	CNTL-S -> Save document
+	Arrows to control cursor
+
 
 Known Bugs:
-        Cursor always starts at beginning
-           of line  
-        Scrolling to bottom of document will 
-           sometimes go over limit
+-----------
+
 
 Desired Features:
-        Saves tab level
-        Colors for C++ keywords
-        Redo/Undo
-        Interactive save feature
-        Header w/ controls
-        Easily work on multiple files
-        Tell user whether line is scrolled
+-----------------
+-Saves tab level
+-Colors for keywords
+-Redo/Undo
+-Header w/ controls
+-Easily work on multiple files
