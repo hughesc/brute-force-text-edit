@@ -8,7 +8,14 @@ line::line(int t): tab(0), cur(0), start(0) {
     }
 }
 
-line::line(string c) :tab(0), characters(c), cur(0), start(0) {}
+line::line(string c): tab(0), characters(c), cur(0), start(0) {}
+
+line::line(string c, int t): tab(t), characters(c), cur(0), start(0) {
+    //Indents as much as needed
+    for(int i=0; i<tab; i++) {
+        characters.insert(characters.begin(), ' ');
+    }
+}
 
 void line::insert(char c) {
     //Gets iterator using cursor position

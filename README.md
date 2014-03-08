@@ -27,8 +27,7 @@ Known Bugs:
 
 Desired Features:
 -----------------
--Saves tab level
--Colors for keywords
+-Colors for keywords 
 -Redo/Undo
 -Header w/ controls
 -Easily work on multiple files

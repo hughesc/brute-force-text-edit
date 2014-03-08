@@ -168,9 +168,11 @@ void pane::take_control() {
                     //Increment workingLine for insert function
                     workingLine++;
                     //Insert a new line with the second half of the old workingLine
-                    doc.insert(workingLine, line(previous->split()));
+                    doc.insert(workingLine, line(previous->split().getLine(), tabLvl));
                     previous->insert(char(c));
                     workingLine--;
+                    //Set column so that we don't have to move cursor
+                    column = tabLvl + PRELINE_SIZE + strlen(PRELINE_DELIMETER);
                 }
                 else {
                     workingLine->insert(char(c));
@@ -181,9 +183,9 @@ void pane::take_control() {
                     doc.insert(workingLine, line(tabLvl));
                     //Decrement workingLine to avoid dereferencing end of list
                     workingLine--;
+                    column = PRELINE_SIZE + strlen(PRELINE_DELIMETER);
                 }
                 row++;
-                column = PRELINE_SIZE + strlen(PRELINE_DELIMETER);
                 //If we need to scroll screen, scroll it
                 if(row >= maxrow)
                     starter += 1;

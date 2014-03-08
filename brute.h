@@ -85,6 +85,8 @@ class line {
         line(int);
         //Creates line with contents of string passed.
         line(string);
+        //Creates line with contents of string and tabLvl
+        line(string, int);
 
     private:
         int tab;
