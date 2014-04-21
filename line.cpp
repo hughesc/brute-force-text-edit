@@ -1,20 +1,23 @@
 #include "brute.h"
 using namespace std;
 
-line::line(int t): tab(0), cur(0), start(0) {
+line::line(int t): tab(0), cur(0), start(0), type(BLACK) {
     //Indents as much as needed
     for(int i=0; i<tab; i++) {
         insert(' ');
     }
 }
 
-line::line(string c): tab(0), characters(c), cur(0), start(0) {}
+line::line(string c): tab(0), characters(c), cur(0), start(0) {
+    type = BLACK;
+}
 
 line::line(string c, int t): tab(t), characters(c), cur(0), start(0) {
     //Indents as much as needed
     for(int i=0; i<tab; i++) {
         characters.insert(characters.begin(), ' ');
     }
+    type = BLACK;
 }
 
 void line::insert(char c) {
@@ -52,14 +55,189 @@ char line::front() {
     return characters[0];
 }
 
+//Helper function for the print function
+vector<bool> findBold(const string &str, const vector<string> &dictionary) {
+    //The vector we will be returning. We initialize it as false
+    vector<bool> rtn(str.size(), false);
+    //Loop through the dictionary, setting our location to the beginning of the line each time
+    for(int i=0; i<dictionary.size(); i++) {
+        int location = 0;
+        while(true) {
+            //Find keywords in the dictionary in our line
+            location = str.find(dictionary[i], location);
+            //If we find a keyword, we return the vector true at the beginning of the word
+            if(location != string::npos) {
+                if((location == 0 || !isalpha(str[location-1])) && (location == str.size()-1 || !isalpha(str[location+dictionary[i].size()]))) {
+                    rtn[location] = true;
+                    //And set it true at the end of the word
+                    rtn[location+dictionary[i].size()] = true;
+                    
+                }
+                location++;
+            }
+            //If we don't find that keyword, we go to the next one
+            else 
+                break;
+        }
+    }
+    return rtn;
+}
+
+int str_color_pair(string str) {
+    int index = str.find(' ');
+    string color;
+
+    //Remove any whitespace from the back of the string
+    if(index == string::npos)
+	color = str;
+    else
+	color = str.substr(0, index);
+
+    for(int i=0; i<color.size(); i++) {
+        toupper(color[i]);
+    }
+
+    if(color == "BLUE") {
+	return BLUE;
+    }
+    else if(color == "RED")
+	return RED;
+    else if(color == "GREEN")
+	return GREEN;
+    else {
+	return BLACK;
+    }
+}
+
+bool isDefault(syntax_tuple s) {
+    if(s.first != "")
+	return false;
+    if(s.last != "")
+	return false;
+    return true;
+}
+	
+//Helper function for print function
+vector<syntax_tuple> findSyntax(const string &str, const vector<syntax_tuple> &syntax, syntax_tuple startingSyntax) {
+    vector<syntax_tuple> syntaxAt;
+    int i, j;
+    int begin_syntax = str.size();
+    syntax_tuple defSyntax;
+
+    //Initialize syntaxAt vector as long as str string with each position override-able
+    for(i=0; i<str.size(); i++) {
+        defSyntax.override = true;
+        syntaxAt.push_back(defSyntax);
+    }
+
+    //If our terminal doesn't support colors, theres no reason to continue
+    if(!has_colors()) {
+        return syntaxAt;
+    }
+
+    //Check for syntax
+    int start = 0;
+
+    while(start < str.size()) {
+        syntax_tuple syntaxAtStart = defSyntax;
+	int first = str.size();
+
+        //Use the default syntax passed to the function
+        if(!isDefault(startingSyntax) && start == 0) {
+	    first = 0;
+	    syntaxAtStart = startingSyntax;
+        }
+	
+        //Find syntax that appears first in the string
+        for(i=0; i<syntax.size(); i++) {
+	    int syntaxBegin = str.find(syntax[i].first, start);
+	    if(syntaxBegin < first && syntaxBegin != string::npos) {
+	        first = syntaxBegin;
+	        syntaxAtStart = syntax[i];
+	    }
+        }
+	start = first;
+
+        //Update our syntax vector
+        int end = str.find(syntaxAtStart.last, start+1);
+	if(end == string::npos || syntaxAtStart.last == "") {
+	    end = str.size();
+	}
+	else {
+	    end += syntaxAtStart.last.size();
+	}
+        while(start < end) {
+            syntaxAt[start] = syntaxAtStart;
+	    start++;
+        }
+    }
+    return syntaxAt;
+}
+            
 //Prints line without preline
-void line::print() {
+syntax_tuple line::print(fileType f, syntax_tuple startingSyntax) {
     int maxrow, maxcol;
     getmaxyx(stdscr, maxrow, maxcol);
     int length = maxcol - PRELINE_SIZE - strlen(PRELINE_DELIMETER);
-    //Generates substring to print
+    
     string sub = characters.substr(start, length);
-    printw(sub.c_str());
+
+    //Embolden any keywords that we find
+    //Togglebold vector tells us the location of beginning and ends of words
+    vector<bool> toggleBold = findBold(characters, f.getDictionary());
+    vector<syntax_tuple> syntaxAt = findSyntax(characters, f.getSyntax(), startingSyntax);
+    
+    //Make the vector with the color in each spot from our syntax vector
+    vector<int> colorVector;
+    for(int k=0; k<syntaxAt.size(); k++) {
+        colorVector.push_back(str_color_pair(syntaxAt[k].color));
+    }
+    
+    bool embolden;
+    bool multiLine = false;
+    int count = 0;
+
+    //Determine starting state of embolden, depending on first word of line
+    for(int i=0; i<toggleBold.size(); i++) {
+        if(toggleBold[i] && (i < start)) {
+            count++;
+        }
+    }
+    
+    if(count % 2) {
+        embolden = true;
+        attron(A_BOLD);
+    }
+    else
+        embolden = false;
+
+    //Print sub-line shown on screen
+    int j;
+    for(j=0; j<sub.size(); j++) {
+        if(toggleBold[j+start] == true && isDefault(syntaxAt[j+start])) {
+            if(embolden) {
+                attroff(A_BOLD);
+                embolden = false;
+            }
+            else {
+                attron(A_BOLD);
+                embolden = true;
+            }
+        }
+	//Turn on colors if we found we needed any
+        attron(COLOR_PAIR(colorVector[j+start]));
+
+        addch(sub[j]);
+    }                  
+    attroff(A_BOLD);
+    attroff(COLOR_PAIR(colorVector[j+start-1]));
+
+    if(syntaxAt[j+start-1].multiline == true)
+        return syntaxAt[syntaxAt.size()-1];
+    else {
+	syntax_tuple def;
+	return def;
+    } 
 }
 
 bool line::eol() {
@@ -163,7 +341,7 @@ int line::tabLevel() {
 
 int line::size() const{
     return characters.size() + PRELINE_SIZE + strlen(PRELINE_DELIMETER);
-}
+}  
 
 inline bool operator==(const line& lhs, const line& rhs) {
     return lhs.getLine() == rhs.getLine();

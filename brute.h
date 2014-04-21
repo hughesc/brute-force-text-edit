@@ -8,12 +8,22 @@
 #include <list>
 #include <fstream>
 #include <stdlib.h>
+#include <vector>
+#include <cctype>
+#include "fileType.h"
+#include <iostream>
 using namespace std;
 
 //Preprocesser Definitions
 //Define preline stuff so that it can be easily changed
 #define PRELINE_SIZE 4
 #define PRELINE_DELIMETER " |"
+
+//Define color macros
+#define BLACK 1
+#define BLUE 2
+#define RED 3
+#define GREEN 4
 
 //Define extra keys that are not defined by ncurses.h
 #define KEY_CNTL_Q 17   //The control-Q character
@@ -56,7 +66,7 @@ class line {
         //Returns last character
         char back();
         //Prints each line along with preline
-        void print();
+        syntax_tuple print(fileType, syntax_tuple);
         //Boolean function that returns true if cursor is at the end
         bool eol();
         //Returns iterator based on cursor position
@@ -81,6 +91,8 @@ class line {
         int size() const;
         //Returns tab level of line
         int tabLevel();
+        //Returns type of line
+        int checkType() const;
         //Creates empty line with tab length. Tab length defaults to zero
         line(int);
         //Creates line with contents of string passed.
@@ -93,6 +105,7 @@ class line {
         string characters;
         int start;
         cursor cur;
+        int type;
 };
 
 //Window pane class. Controls lines through linked list
@@ -112,6 +125,7 @@ class pane {
     private:
         list<line> doc;
         string fileName;
+        fileType ft;
 };
 
 class err {
@@ -120,6 +134,6 @@ class err {
         err(string s): descriptor(s) {};
     private:
         string descriptor;
-};
+};       
 
 #endif

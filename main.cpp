@@ -1,4 +1,5 @@
 #include <iostream>
+#include <exception>
 #include "brute.h"
 using namespace std;
 
@@ -20,6 +21,7 @@ int main(int argc, char* argv[]) {
 
         //Initializes window to interact with
         mainScreen.initialize();
+        cout << sizeof(mainScreen) << endl;
 
         //Gives mainScreen control of typing
         mainScreen.take_control();
@@ -28,6 +30,7 @@ int main(int argc, char* argv[]) {
         endwin();
     }
     catch (err &e) {
+        endwin();
         cerr << e.what() << endl;
         return 2;
     }

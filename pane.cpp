@@ -1,25 +1,20 @@
 #include "brute.h"
 using namespace std;
 
-pane::pane(string title):fileName(title) {
+pane::pane(string title):fileName(title), ft(title.substr(title.find('.'))) {
     string loadedLine;
-    //Creates new document if no filename was passed
-    if(title == "") {
-        doc.push_back(line(0));
+
+    fstream openedFile;
+    openedFile.open(title.c_str(), ios::in | ios::app);
+    if(openedFile.is_open()) {
+        while(!openedFile.eof()) {
+            getline(openedFile, loadedLine);
+            doc.push_back(line(loadedLine+'\n'));
+        }
+        openedFile.close();
     }
     else {
-        fstream openedFile;
-        openedFile.open(title.c_str(), ios::in | ios::app);
-        if(openedFile.is_open()) {
-            while(!openedFile.eof()) {
-                getline(openedFile, loadedLine);
-                doc.push_back(line(loadedLine+'\n'));
-            }
-            openedFile.close();
-        }
-        else {
-            throw err("Could not open " + title);
-        }
+        throw err("Could not open " + title);
     }
 }
 
@@ -30,6 +25,16 @@ void pane::initialize() {
     keypad(stdscr, true);
     noecho();
     raw();
+
+    //Initialize color stuff
+    if(has_colors()) {
+        start_color();
+        init_pair(BLACK, COLOR_WHITE, COLOR_BLACK);
+        init_pair(BLUE, COLOR_BLUE, COLOR_BLACK);
+        init_pair(GREEN, COLOR_GREEN, COLOR_BLACK);
+	init_pair(RED, COLOR_RED, COLOR_BLACK);
+        wbkgd(stdscr, COLOR_PAIR(BLACK));
+    }
 
     refill_from(1);
     move(0, PRELINE_SIZE + strlen(PRELINE_DELIMETER));
@@ -46,7 +51,6 @@ void pane::take_control() {
     //Int that holds number of top line
     int starter = 1;
 
-    //Q character is used to quit loop at the moment
     while(true){
         //Useful to get y and x positions each time
         getmaxyx(stdscr, maxrow, maxcol);
@@ -64,6 +68,10 @@ void pane::take_control() {
                 if(workingLine->can_go_left()) {
                     workingLine->pop();
                     column--;
+                    if(!(column >= PRELINE_SIZE + strlen(PRELINE_DELIMETER))) {
+                        column++;
+                        workingLine->scroll_left();
+                    }
                 }
                 //If we are at beginning of line, delete the line
                 else if(workingLine != doc.begin()) {
@@ -75,9 +83,9 @@ void pane::take_control() {
                     previous = workingLine;
                     workingLine++;
                     doc.erase(previous);
-                    row -= 1;
-                    column = PRELINE_SIZE + strlen(PRELINE_DELIMETER);
+                    row--;
                     workingLine--;
+                    column = workingLine->size()-1;
                 }
                 //Check if we need to scroll screen
                 if(row < 0) {
@@ -240,10 +248,11 @@ void pane::refill_from(int row) {
     getmaxyx(stdscr, maxrow, maxcol);
 
     //Print each line
+    syntax_tuple startingSyntax; 
     while(i != doc.end()) {
         if(counter >= row && counter <= (maxrow + row - 1)) {
             numSys.print(counter);
-            i->print();
+            startingSyntax = i->print(ft, startingSyntax);
         }
         i++;
         counter++;
