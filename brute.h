@@ -108,6 +108,19 @@ class line {
         int type;
 };
 
+class header {
+    public:
+        //Constructer
+        header();
+	//Prints the header
+        void print();
+	//Returns the number of rows 
+	int size();
+    private:
+        string contents;
+	char delimeter;
+};
+
 //Window pane class. Controls lines through linked list
 class pane {
     public:
@@ -126,6 +139,7 @@ class pane {
         list<line> doc;
         string fileName;
         fileType ft;
+        header textHeader;
 };
 
 class err {

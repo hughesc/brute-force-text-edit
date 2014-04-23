@@ -37,7 +37,7 @@ void pane::initialize() {
     }
 
     refill_from(1);
-    move(0, PRELINE_SIZE + strlen(PRELINE_DELIMETER));
+    move(textHeader.size(), PRELINE_SIZE + strlen(PRELINE_DELIMETER));
 }
 
 void pane::take_control() {
@@ -88,9 +88,9 @@ void pane::take_control() {
                     column = workingLine->size()-1;
                 }
                 //Check if we need to scroll screen
-                if(row < 0) {
+                if(row < textHeader.size()) {
                     starter -= 1;
-                    row = 0;
+                    row = textHeader.size();
                 }
                 break;
             case KEY_DOWN:
@@ -124,9 +124,9 @@ void pane::take_control() {
                         column = workingLine->cursorPos() + PRELINE_SIZE + strlen(PRELINE_DELIMETER);
                     
                     //Check if we need to scroll screen
-                    if(row < 0) {
+                    if(row < textHeader.size()) {
                         starter -= 1;
-                        row = 0;
+                        row = textHeader.size();
                     }
                 }
                 break;
@@ -247,14 +247,22 @@ void pane::refill_from(int row) {
     int maxrow, maxcol;
     getmaxyx(stdscr, maxrow, maxcol);
 
+    //Print the header
+    textHeader.print();
+
     //Print each line
     syntax_tuple startingSyntax; 
     while(i != doc.end()) {
-        if(counter >= row && counter <= (maxrow + row - 1)) {
+        if(counter >= row && counter <= (maxrow + row - textHeader.size() - 1)) {
             numSys.print(counter);
             startingSyntax = i->print(ft, startingSyntax);
         }
         i++;
+        counter++;
+    }
+    while(counter <= (maxrow + row - textHeader.size() - 1)) {
+        numSys.print(counter);
+        addch('\n');
         counter++;
     }
 }

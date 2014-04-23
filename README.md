@@ -30,7 +30,9 @@ Known Bugs:
 Desired Features:
 -----------------
 -Indicator for when lines cannot be shown completely on the terminal 
+
 -Redo/Undo
--Header w/ controls
+
 -Easily work on multiple files
+
 -Easily add new programming languages to the editor
