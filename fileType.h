@@ -27,6 +27,8 @@ class fileType {
     public:
         //Constructor. Must pass filename.txt
         fileType(string);
+        //Returns the file with the necessary syntax highlighting
+        string discover(const string&);
         //Returns all keywords in this filetype
         vector<string> getDictionary() {return dictionary;}
         //Returns any syntax

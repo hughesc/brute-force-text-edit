@@ -24,6 +24,38 @@ bool operator!=(const syntax_tuple &lhs, const syntax_tuple &rhs) {
     return !(rhs == lhs);
 }
 
+string fileType::discover(const string &ext) {
+    fstream f;
+    string line;
+    int index;
+    const string indicator = "fileType:";
+    
+    f.open("sfiles/types.txt");
+    if(!f.is_open()) {
+        return "";
+    }
+    else {
+        while(!f.eof()) {
+             //Read line from file
+             getline(f, line);
+
+             //Check if the line has our extension
+             index = line.find(ext);
+             if(index != string::npos) {
+                 index = line.find(indicator);
+                 index += indicator.size();
+
+                 //The name of the file in which that extension is associated with is after the indicator
+                 f.close();
+                 return "sfiles/" + line.substr(index);
+             }
+        }
+        //If we get to end of file without finding our extension, we return empty string
+        f.close();
+        return "";
+    }
+}           
+
 fileType::fileType(string extension) {
     //Reading dictionary
     bool rd = false;
@@ -35,11 +67,12 @@ fileType::fileType(string extension) {
     string temp, check;
     int index;
     syntax_tuple st;
-   
-    //C++ files
-    if(extension == ".cpp")
-        openedFile.open("c++.txt");
+    
+    //Open our file to load the syntax highlighting
+    string syntaxFile = discover(extension);
+    openedFile.open(syntaxFile.c_str());
 
+    //Load syntax highlighting
     if(openedFile.is_open()) {
         while(!openedFile.eof()) {
 	    //Read each line
@@ -117,6 +150,6 @@ fileType::fileType(string extension) {
 	    if(temp == "syntax:")
 		rs = true;
         }
-    }
     openedFile.close();
+    }
 }

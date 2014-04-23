@@ -26,13 +26,14 @@ Known Bugs:
 -Does not implement all c++ keywords correctly. If there is a shorter one contained in a longer one,
 	the editor gets confused. Examples: xor_eq, char32_t, or_eq...
 
+-No error checking when adding a syntax highlighting file. Links can be added without the actual file.
 
 Desired Features:
 -----------------
--Indicator for when lines cannot be shown completely on the terminal 
-
 -Redo/Undo
+
+-Cut/Paste
 
 -Easily work on multiple files
 
--Easily add new programming languages to the editor
+-Help function

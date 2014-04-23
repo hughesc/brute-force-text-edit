@@ -2,22 +2,46 @@
 using namespace std;
 
 //Default constructor
-header::header() {
-    contents = "Text Editor\n^Q: quit ^S: save\n";
-    delimeter = '-';
+header::header(string &fname):filename(fname), saved(true), delimeter('-') {}
+
+void header::unsave() {
+    saved = false;
+}
+
+void header::save() {
+    saved = true;
 }
 
 void header::print() {
-    //Print contents to the screen
-    printw(contents.c_str());
+    printw(filename.c_str());
 
     //Get maximum limits of the screen
     int maxr;
     int maxc;
     getmaxyx(stdscr, maxr, maxc);
 
+    //Print whether the file is saved
+    int row;
+    int col;
+    getyx(stdscr, row, col);
+    string indicator;
+
+    if(saved)
+        indicator = "Saved\n";
+    else
+        indicator = "Unsaved\n";
+
+    while(col < maxc - 1 - indicator.size()) {
+        addch(' ');
+        col++;
+    }
+    printw(indicator.c_str());
+
+    //Print controls
+    printw("^Q: quit ^S: save\n");
+
     //Repeat the delimeter until the end of the screen
-    int col = 0;
+    col = 0;
     while(col < maxc-1) {
         addch(delimeter);
         col ++;
@@ -26,7 +50,7 @@ void header::print() {
 }
 
 int header::size() {
-    int count = 0;
+    /*int count = 0;
     int index = 0;
 
     while(true) {
@@ -38,5 +62,7 @@ int header::size() {
     }
     
     //Make sure to account for the delimeter as well
-    return count+1;
+    return count+1;*/
+    //Hard code the number because it won't change by itself
+    return 3; 
 }

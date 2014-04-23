@@ -111,13 +111,17 @@ class line {
 class header {
     public:
         //Constructer
-        header();
+        header(string&);
 	//Prints the header
         void print();
 	//Returns the number of rows 
 	int size();
+        //Changes saved boolean
+        void save();
+        void unsave();
     private:
-        string contents;
+        string filename;
+        bool saved;
 	char delimeter;
 };
 
@@ -134,6 +138,8 @@ class pane {
         void initialize();
         //Saves file line by line
         void save(const string &filename);
+        //Changes saved boolean of header
+        void unsave();
 
     private:
         list<line> doc;

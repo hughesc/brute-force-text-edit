@@ -1,21 +1,41 @@
 #include "brute.h"
 using namespace std;
 
-pane::pane(string title):fileName(title), ft(title.substr(title.find('.'))) {
+pane::pane(string title):fileName(title), ft(title.substr(title.find('.'))), textHeader(title) {
     string loadedLine;
-
-    fstream openedFile;
-    openedFile.open(title.c_str(), ios::in | ios::app);
-    if(openedFile.is_open()) {
-        while(!openedFile.eof()) {
-            getline(openedFile, loadedLine);
-            doc.push_back(line(loadedLine+'\n'));
-        }
-        openedFile.close();
+    
+    //Test to make sure that the file exists before opening
+    bool exists;
+    ifstream test(title.c_str());
+    if(test.good()) {
+        test.close();
+        exists = true;
     }
     else {
-        throw err("Could not open " + title);
+        test.close();
+        exists = false;
     }
+
+    //If the file exists, open it and take out its contents
+    if(exists) {
+        fstream openedFile;
+        openedFile.open(title.c_str(), ios::in | ios::app);
+        if(openedFile.is_open()) {
+            while(!openedFile.eof()) {
+                getline(openedFile, loadedLine);
+                doc.push_back(line(loadedLine+'\n'));
+            }
+            openedFile.close();
+        }
+        else {
+            throw err("Could not open " + title);
+        }
+    }
+    //If the file does not exist, start with a new, blank line
+    else {
+        doc.push_back(line("\n"));
+    }
+    test.close();
 }
 
 void pane::initialize() {
@@ -66,6 +86,7 @@ void pane::take_control() {
             //Need to check if it can delete anything
             case KEY_BACKSPACE:
                 if(workingLine->can_go_left()) {
+                    unsave();
                     workingLine->pop();
                     column--;
                     if(!(column >= PRELINE_SIZE + strlen(PRELINE_DELIMETER))) {
@@ -75,6 +96,7 @@ void pane::take_control() {
                 }
                 //If we are at beginning of line, delete the line
                 else if(workingLine != doc.begin()) {
+                    unsave();
                     //First copy it into previous line
                     previous = workingLine;
                     previous--;
@@ -166,6 +188,7 @@ void pane::take_control() {
                 break;
             //When we press enter, we first create newline on old line
             case '\n':
+                unsave();
                 //Must check to make sure we are not in middle of a line. If we are, grab remainder of the workingLine
 		//And bring it to the new line
                 if(!workingLine->eol()) {
@@ -204,11 +227,13 @@ void pane::take_control() {
             case KEY_DC:
                 //Check that we are not at eol()
                 if(workingLine->can_go_right()) {
+                    unsave();
                     move(row, column+1);
                     workingLine->pop();
                 }
                 //if we are and we are not the last line, take the contents of the next line and remove the next line
                 else if(workingLine != --doc.end()) {
+                    unsave();
                     //First copy it into previous line
                     previous = workingLine;
                     workingLine++;
@@ -219,6 +244,7 @@ void pane::take_control() {
                 }   
                 break;
             default:
+                unsave();
                 if(column == maxcol-1) {
                     workingLine->insert(char(c));
                     workingLine->scroll_right();
@@ -280,7 +306,10 @@ void pane::save(const string &filename) {
             iterator++;
         }
         f.close();
+        textHeader.save();
     }
-    else
-        endwin();
+}
+
+void pane::unsave() {
+    textHeader.unsave();
 }
