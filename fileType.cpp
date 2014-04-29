@@ -30,7 +30,7 @@ string fileType::discover(const string &ext) {
     int index;
     const string indicator = "fileType:";
     
-    f.open("sfiles/types.txt");
+    f.open((path + "sfiles/types.txt").c_str());
     if(!f.is_open()) {
         return "";
     }
@@ -47,7 +47,7 @@ string fileType::discover(const string &ext) {
 
                  //The name of the file in which that extension is associated with is after the indicator
                  f.close();
-                 return "sfiles/" + line.substr(index);
+                 return path + "sfiles/" + line.substr(index);
              }
         }
         //If we get to end of file without finding our extension, we return empty string
@@ -152,4 +152,10 @@ fileType::fileType(string extension) {
         }
     openedFile.close();
     }
+}
+
+string findPath() {
+    string user(getlogin());
+    string p = "/home/" + user + "/bin/brute/";
+    return p;
 }

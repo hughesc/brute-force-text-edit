@@ -79,8 +79,29 @@ void pane::take_control() {
         c = getch();
 
         //Quit if key is control-Q
-        if(c == KEY_CNTL_Q)
-            break;
+        if(c == KEY_CNTL_Q) {
+            if(!textHeader.is_saved()) {
+                //Ask the user if they would like to save
+                textHeader.changeHeaderType(SAVECHECK);
+                clear();
+                refill_from(starter);
+                move(row, column);
+
+                //If the user says yes, quit
+                int check = getch();
+                if(check == 'y') {
+                    break;
+                }
+                //Otherwise, change the header back to original and continue
+                textHeader.changeHeaderType(DEFAULT);
+                clear();
+                refill_from(starter);
+                move(row, column);
+                continue;
+            }
+            else
+                break;
+        }
 
         switch(c) {
             //Need to check if it can delete anything

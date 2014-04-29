@@ -3,7 +3,7 @@ CFLAGS=-c -Wall -w
 LDFLAGS=-lncurses
 SOURCES=main.cpp cursor.cpp preline.cpp line.cpp header.cpp pane.cpp fileType.cpp 
 OBJS=$(SOURCES:.cpp=.o)
-EXE=brute
+EXE=bts
 
 all: $(SOURCES) $(EXE)
 	
@@ -15,5 +15,6 @@ $(EXE): $(OBJS)
 
 clean:
 	rm $(OBJS) $(EXE)
+
 
 

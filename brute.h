@@ -108,6 +108,10 @@ class line {
         int type;
 };
 
+//Header types
+#define DEFAULT 0
+#define SAVECHECK 1
+
 class header {
     public:
         //Constructer
@@ -119,10 +123,16 @@ class header {
         //Changes saved boolean
         void save();
         void unsave();
+        //Changes the header to check if the user wants the document to be saved
+        void changeHeaderType(int);
+        //Returns whether document is saved 
+        bool is_saved();
+  
     private:
         string filename;
         bool saved;
 	char delimeter;
+        int headerType;
 };
 
 //Window pane class. Controls lines through linked list

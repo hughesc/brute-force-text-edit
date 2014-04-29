@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
         string fileName = argv[2];
         string ext;
         ofstream f;
-        f.open("sfiles/types.txt", ios::app);
+        f.open((path + "sfiles/types.txt").c_str(), ios::app);
         if(!f.is_open()) {
             cout << "Could not add syntax style" << endl;
             cout << "Could not open types.txt" << endl;
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 
             //Write it into another file in the new directory
             string filename(argv[2]);
-            f.open(("sfiles/" + filename).c_str());
+            f.open((path + "sfiles/" + filename).c_str());
             f << copy;
             cout << "Successfully added syntax highlighting file" << endl;
             f.close();
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
         fstream f;
         string s;
         const string indicator = "fileType:";
-        f.open("sfiles/types.txt");
+        f.open((path + "sfiles/types.txt").c_str());
         while(f.is_open() && !f.eof()) {
             getline(f, s);
             int index = s.find(indicator);
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
         }
 
         //Remove file
-        if(remove(("sfiles/"+fname).c_str()) != 0) {
+        if(remove((path + "sfiles/"+fname).c_str()) != 0) {
             cout << "Could not delete " << fname << endl;
             return 2;
         }
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
         fstream copy;
         string str;
         string newFile;
-        copy.open("sfiles/types.txt");
+        copy.open((path + "sfiles/types.txt").c_str());
         while(!copy.eof()) {
             getline(copy, str);
             i = str.find(fname);
@@ -129,16 +129,32 @@ int main(int argc, char* argv[]) {
         copy.close();
 
         ofstream copyWithoutLinks;
-        copyWithoutLinks.open("sfiles/types.txt");
+        copyWithoutLinks.open((path + "sfiles/types.txt").c_str());
         copyWithoutLinks << newFile;
         copyWithoutLinks.close();
         cout << "Deleted file successfully" << endl;
         return 0;
     }
 
+    //Help Function
+    if(argc == 2 && argv[1][0] == '-' && argv[1][1] == '-' && argv[1][2] == 'h') {
+        cout << "Usage: " << argv[0] << " [FILENAME]" << endl;
+        cout << "Simple text editor for simple files" << endl << endl;
+        cout << "Commands and interpretation:" << endl;
+        cout << "  -s    Stores a syntax file specified by the user" << endl;   
+        cout << "  -l    Lists the syntax files being used by the text editor" << endl;
+        cout << "  -r    Removes syntax file from the text editor's file system" << endl << endl;
+
+        cout << "When adding syntax files, specify the path to the syntax file, " << endl;
+        cout << "and specify the extensions that the syntax file will be used for." << endl; 
+        cout << "If adding multiple files, use double quotes." << endl;
+        cout << "Example: " << argv[0] << " -s c++.txt \".h .cpp\"" << endl;
+    return 0;
+    }
+
     //If we did not recognize an output, we tell the user the default use, and refer them to the help function
     cerr << "Usage: " << argv[0] << " [FILENAME]" << endl;
-    cerr << "Try '" << argv[0] << " --help' once I finish the --help function" << endl;
+    cerr << "Try '" << argv[0] << " --help' for more information" << endl;
     return 1;
 }
 
