@@ -1,8 +1,0 @@
-#Any object files
-*.o
-
-#Text files
-*.txt
-
-#Any files that end in a tilda
-*~
