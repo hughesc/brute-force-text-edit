@@ -13,8 +13,8 @@ Documentation
 
 The brute text editor requires the ncurses library.
 
-To install, copy the folder into /home/user/bin/ and use make. The text editor is compiled into an
-executable called bts. Move this file directly into the /home/user/bin/ directory to use the editor.
+To install, copy the folder into /home/user/bin/as the "brute" directory and use make. The text editor is compiled
+into an executable called bts. Move this file directly into the /home/user/bin/ directory to use the editor.
 I plan on making the installation process more automated in the future, but this works fine for now. 
 
 Once compiled use the command bts [FILENAME] to edit a file.
